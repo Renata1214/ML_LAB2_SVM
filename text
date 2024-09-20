@@ -1,0 +1,70 @@
+import numpy as np
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import accuracy_score
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from sklearn.datasets import make_classification
+
+#initialize parameters
+learning_rate = 0.01
+epochs = 9
+#Create dataset
+X, y = make_classification(n_samples=500, n_features=3, n_informative=3,
+                           n_redundant=0, n_clusters_per_class=1,
+                           flip_y=0.1,  # adds a small amount of noise
+                           class_sep=1.0,  # classes are separable but not too easily
+                           random_state=40)
+#relabel the Y targets to 1/-1
+y = np.where(y == 0, -1, y)
+#Split the dataset into training and testing datasets
+X_train, X_test, y_train, y_test = train_test_split(X,y,random_state=104,test_size=0.25,shuffle=True)
+
+#3Implement soft margin svm. Compute the loss function
+def hinge_loss (x_1, y_1,w,b,c):
+
+def gradient_w (w,b,x_1,y_1) :
+
+def gradient_b(w,b,x_1,y_1): 
+
+#3.Implement soft margin SVM
+def svm_mini_batch_gradient(x_1, y_1, C, lr, epochs):
+    # Initialize weights and bias : Shuffle the dataset before creating mini-batches
+    for epoch in range(epochs):
+        indices = np.random.permutation(n)
+        x_shuffled = x_1[indices]
+        y_shuffled = y_1[indices]
+    n = X.shape[0]  # Number of samples
+    # Perform gradient descent
+    for epoch in range(epochs):
+        for i in range(n):
+            # Check if the point violates the margin (i.e., hinge loss is non-zero)
+            if y[i] * (np.dot(X[i], w) + b) < 1:
+                # Point violates margin: update w and b
+                w = w - lr * (w - C * y[i] * X[i])  # Update weights
+                b = b - lr * C * y[i]               # Update bias
+            else:
+                # Correct classification with margin: only update w (no hinge loss term)
+                w = w - lr * w
+    return w, b
+
+dw, db = 0, 0
+for x, y in zip(X, Y):
+    dw += grad_w(w, b, x, y)
+    db += grad_b(w, b, x, y)
+    num_points_seen += 1
+
+
+
+# Example usage:
+# X is the feature matrix, y is the label vector (+1/-1)
+# C is the regularization parameter, lr is the learning rate, epochs is the number of iterations
+
+
+#4.Use mini batch gradient descent to minimize the loss function on the next page (shuffle the data first)
+#5.Return the optimal weights by minimizing the loss function
+
+#6.Perform some predictions on the test data
+#7.Calculate the accuracy score
+#8.Visualize the training data and decision boundary in 3D
+#9.Visualize the loss function over time during training
