@@ -7,8 +7,7 @@ from mpl_toolkits.mplot3d import Axes3D
 from sklearn.datasets import make_classification
 
 #initialize parameters
-learning_rate = 0.01
-epochs = 9
+learning_rate_1 = 0.01
 #Create dataset
 X, y = make_classification(n_samples=500, n_features=3, n_informative=3,
                            n_redundant=0, n_clusters_per_class=1,
@@ -22,13 +21,25 @@ X_train, X_test, y_train, y_test = train_test_split(X,y,random_state=104,test_si
 
 #3Implement soft margin svm. Compute the loss function
 def hinge_loss (x_1, y_1,w,b,c):
+    margin = 1 - y_1 * (np.dot(w, x_1) + b)
+    hinge = max(0, margin)
+    return 0.5 * np.dot(w, w) + c * hinge
 
-def gradient_w (w,b,x_1,y_1) :
+def gradient_w (w,b,x_1,y_1,c) :
+    if y_1 * (np.dot(w, x_1) + b) < 1:
+        return w - c * y_1 * x_1  # Misclassified or within margin
+    else:
+        return w  # Correctly classified, no update
+
 
 def gradient_b(w,b,x_1,y_1): 
+    if y_1 * (np.dot(w, x_1) + b) < 1:
+        return -c * y_1  # Misclassified or within margin
+    else:
+        return 0  # Correctly classified, no update
 
 #3.Implement soft margin SVM
-def svm_mini_batch_gradient(x_1, y_1, c, lr, epochs):
+def svm_mini_batch_gradient(x_1, y_1, c, lr, epochs, batch_s):
     hinge_list=[]
     # Initialize weights and bias : Shuffle the dataset before creating mini-batches
      # Initialize gradients for weights and bias
@@ -55,15 +66,7 @@ def svm_mini_batch_gradient(x_1, y_1, c, lr, epochs):
                 hinge_list.append(hinge_loss (x_1, y_1,w,b,c))
                 # reset gradients 
                 dw, db = 0, 0
-    return w, b
-
-dw, db = 0, 0
-for x, y in zip(X, Y):
-    dw += grad_w(w, b, x, y)
-    db += grad_b(w, b, x, y)
-    num_points_seen += 1
-
-
+    return w, b, hinge_list
 
 # Example usage:
 # X is the feature matrix, y is the label vector (+1/-1)
@@ -74,6 +77,25 @@ for x, y in zip(X, Y):
 #5.Return the optimal weights by minimizing the loss function
 
 #6.Perform some predictions on the test data
-#7.Calculate the accuracy score
+C = 1.0  # Regularization parameter
+learning_rate_2 = 0.01
+epochs_trial = 100
+batch_size = 32
+
+Weight, Bias, losses = svm_mini_batch_gradient(X_train, y_train, C, learning_rate_2, epochs_trial, batch_size)
+
+def predict(x_2, w_1, b_1):
+    return np.sign(np.dot(x_2, w_1) + b_1)
+
+y_predict = predict(X_test, Weight, Bias)
+
+# Step 7: Calculate accuracy
+accuracy = accuracy_score(y_test, y_predict)
+print(f"Accuracy: {accuracy * 100:.2f}%")
+
+
 #8.Visualize the training data and decision boundary in 3D
+
+
+
 #9.Visualize the loss function over time during training
