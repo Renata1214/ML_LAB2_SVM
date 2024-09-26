@@ -14,6 +14,7 @@ X, y = make_classification(n_samples=500, n_features=3, n_informative=3,
                            flip_y=0.1,  # adds a small amount of noise
                            class_sep=1.0,  # classes are separable but not too easily
                            random_state=40)
+                           
 #relabel the Y targets to 1/-1
 y = np.where(y == 0, -1, y)
 #Split the dataset into training and testing datasets
@@ -111,8 +112,44 @@ accuracy = accuracy_score(y_test, y_predict)
 print(f"Accuracy: {accuracy * 100:.2f}%")
 
 #8.Visualize the training data and decision boundary in 3D
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d')
 
+# Plot points for class -1
+ax.scatter(X_train[y_train == -1][:, 0], X_train[y_train == -1][:, 1], X_train[y_train == -1][:, 2], 
+           color='red', label='Class -1', marker='o')
+# Plot points for class 1
+ax.scatter(X_train[y_train == 1][:, 0], X_train[y_train == 1][:, 1], X_train[y_train == 1][:, 2], 
+           color='blue', label='Class 1', marker='^')
 
+# Plot the decision boundary
+x1 = np.linspace(np.min(X_train[:, 0]), np.max(X_train[:, 0]), 10)
+x2 = np.linspace(np.min(X_train[:, 1]), np.max(X_train[:, 1]), 10)
+x1, x2 = np.meshgrid(x1, x2)
+
+# Calculate x3 based on the decision boundary equation w_1 * x_1 + w_2 * x_2 + w_3 * x_3 + b = 0
+x3 = (-Weight[0] * x1 - Weight[1] * x2 - Bias) / Weight[2]
+
+# Plot the decision boundary
+ax.plot_surface(x1, x2, x3, color='green', alpha=0.5)
+
+# Labels and title
+ax.set_xlabel('Feature 1')
+ax.set_ylabel('Feature 2')
+ax.set_zlabel('Feature 3')
+ax.set_title('Training Data and Decision Boundary')
+ax.legend()
+
+plt.show()
 
 #9.Visualize the loss function over time during training
+plt.figure()
+plt.plot(range(1, len(losses) + 1), losses, color='blue', label='Hinge Loss')
+plt.xlabel('Epochs')
+plt.ylabel('Loss')
+plt.title('Loss Function Over Time During Training')
+plt.grid(True)
+plt.legend()
+plt.show()
+
 
