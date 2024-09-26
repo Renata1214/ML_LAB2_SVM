@@ -39,33 +39,50 @@ def gradient_b(w,b,x_1,y_1):
         return 0  # Correctly classified, no update
 
 #3.Implement soft margin SVM
-def svm_mini_batch_gradient(x_1, y_1, c, lr, epochs, batch_s):
-    hinge_list=[]
-    # Initialize weights and bias : Shuffle the dataset before creating mini-batches
-     # Initialize gradients for weights and bias
-    grad_w = np.zeros(X.shape[1])
-    grad_b = 0
-    n = X.shape[0]  # Number of samples
+def gradient_b(w, b, x_1, y_1, c):
+    if y_1 * (np.dot(w, x_1) + b) < 1:
+        return -c * y_1  # Misclassified or within margin
+    else:
+        return 0  # Correctly classified, no update
+
+# Implement soft margin SVM with mini-batch gradient descent
+def svm_mini_batch_gradient(X_train, y_train, c, lr, epochs, batch_size):
+    # Initialize weights and bias
+    w = np.zeros(X_train.shape[1])
+    b = 0
+    n = X_train.shape[0]  # Number of samples
+    hinge_list = []
+    
+    # Perform gradient descent for each epoch
     for epoch in range(epochs):
+        # Shuffle the data at the start of each epoch
         indices = np.random.permutation(n)
-        x_shuffled = x_1[indices]
-        y_shuffled = y_1[indices]
-        # Perform gradient descent
-        inter_ite =0
-        dw, db = 0, 0
-        for x_2, y_2 in zip(x_1, y_1):
-            # Check if the point violates the margin (i.e., hinge loss is non-zero)
-            dw += gradient_w(w, b, x_2, y_2)
-            db += gradient_b(w, b, x_2, y_2)
-            inter_ite = inter_ite + 1
-        #check if the batch is complete to add the necessary values
-            if inter_ite % mini_batch_size == 0:
-                w = w - lr * dw
-                b = b - lr * db
-                #calculate the loss function after each epoch
-                hinge_list.append(hinge_loss (x_1, y_1,w,b,c))
-                # reset gradients 
-                dw, db = 0, 0
+        X_shuffled = X_train[indices]
+        y_shuffled = y_train[indices]
+        
+        # Iterate through mini-batches
+        for i in range(0, n, batch_size):
+            X_batch = X_shuffled[i:i + batch_size]
+            y_batch = y_shuffled[i:i + batch_size]
+            
+            # Initialize gradients
+            dw = np.zeros(X_train.shape[1])
+            db = 0
+            
+            # Compute the gradients for the mini-batch
+            for x_1, y_1 in zip(X_batch, y_batch):
+                dw += gradient_w(w, b, x_1, y_1, c)
+                db += gradient_b(w, b, x_1, y_1, c)
+            
+            # Update weights and bias
+            w -= lr * dw / batch_size
+            b -= lr * db / batch_size
+        
+        # Calculate loss after each epoch
+        epoch_loss = np.mean([hinge_loss(x, y, w, b, c) for x, y in zip(X_train, y_train)])
+        hinge_list.append(epoch_loss)
+        #print(f"Epoch {epoch+1}/{epochs}, Loss: {epoch_loss}")
+    
     return w, b, hinge_list
 
 # Example usage:
@@ -93,9 +110,9 @@ y_predict = predict(X_test, Weight, Bias)
 accuracy = accuracy_score(y_test, y_predict)
 print(f"Accuracy: {accuracy * 100:.2f}%")
 
-
 #8.Visualize the training data and decision boundary in 3D
 
 
 
 #9.Visualize the loss function over time during training
+
